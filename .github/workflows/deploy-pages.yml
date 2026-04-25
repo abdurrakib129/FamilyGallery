@@ -39,7 +39,13 @@ jobs:
         run: npm run build
 
       - name: Add SPA fallback file
-        run: cp dist/client/index.html dist/client/404.html
+        shell: bash
+        run: |
+          if [ -f dist/client/index.html ]; then
+            cp dist/client/index.html dist/client/404.html
+          else
+            echo "Skipping SPA fallback: dist/client/index.html not found"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
