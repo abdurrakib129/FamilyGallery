@@ -39,7 +39,26 @@ jobs:
           if [ -f dist/client/index.html ]; then
             cp dist/client/index.html dist/client/404.html
           else
-            echo "Skipping SPA fallback: dist/client/index.html not found"
+            echo "dist/client/index.html not found; generating static entry file"
+            CSS_FILE="$(basename "$(ls dist/client/assets/styles-*.css | head -n 1)")"
+            JS_FILES="$(ls dist/client/assets/index-*.js | xargs -n 1 basename)"
+            {
+              echo '<!doctype html>'
+              echo '<html lang="en">'
+              echo '  <head>'
+              echo '    <meta charset="UTF-8" />'
+              echo '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />'
+              echo '    <title>Family Gallery</title>'
+              echo "    <link rel=\"stylesheet\" href=\"./assets/${CSS_FILE}\" />"
+              echo '  </head>'
+              echo '  <body>'
+              for f in ${JS_FILES}; do
+                echo "    <script type=\"module\" src=\"./assets/${f}\"></script>"
+              done
+              echo '  </body>'
+              echo '</html>'
+            } > dist/client/index.html
+            cp dist/client/index.html dist/client/404.html
           fi
 
       - name: Deploy to gh-pages branch
